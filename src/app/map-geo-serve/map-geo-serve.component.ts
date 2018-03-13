@@ -4,7 +4,7 @@ import { environment } from 'environments/environment';
 import { MapService } from '../../services/map.service';
 import { PopUpComponent } from '../pop-up/pop-up.component';
 import * as _ from 'lodash';
-import { BarData, TableData } from '../exampledata';
+import { BarData, TableData, multiBarData } from '../exampledata';
 @Component({
   selector: 'app-map-geo-serve',
   templateUrl: './map-geo-serve.component.html',
@@ -137,7 +137,6 @@ export class MapGeoServeComponent implements OnInit {
   }
 
   ShowFeaturInfo(view, evt) {
-    //const popUpContainer = document.getElementById('popup');
     const popUpContent = document.getElementById('popup-content');
     const popUpCloser = document.getElementById('popup-closer');
     let self = this;
@@ -157,9 +156,32 @@ export class MapGeoServeComponent implements OnInit {
     const source = this.displaymap.forEachFeatureAtPixel(evt.pixel, (feature) => {
       return { name: feature.get('name') };
     });
+    let sampleArr = [];
+    multiBarData.forEach((singleRecord) => {
+      singleRecord.allvalues.forEach((data, k) => {
+        if (sampleArr.length > 0) {
+          const index = _.findIndex(sampleArr, { label: data.year });
+          if (index === -1) {
+            let obj = {};
+            obj['label'] = data.year;
+            obj[0] = data.value
+            sampleArr.push(obj);
+          } else {
+            let obj = sampleArr[index];
+            obj[Object.keys(obj).length - 1] = data.value;
+            sampleArr[index] = obj;
+          }
+        } else {
+          let obj = {};
+          obj['label'] = data.year;
+          obj[0] = data.value
+          sampleArr.push(obj);
+        }
+      })
+    })
     const compFactory = this.resolver.resolveComponentFactory(PopUpComponent);
     this.compRef = compFactory.create(this.injector);
-    this.compRef.instance.barData = BarData;
+    this.compRef.instance.barData = sampleArr;
     this.compRef.instance.tableOne = TableData;
     this.compRef.instance.tableTwo = TableData;
     popUpContent.appendChild(this.compRef.location.nativeElement);
@@ -168,24 +190,6 @@ export class MapGeoServeComponent implements OnInit {
     this.compRef.onDestroy(() => {
       this.appRef.detachView(this.compRef.hostView);
     });
-    // this.featureinfoservice = this.mapService.getFeatureInfo(url).subscribe((featureInformation) => {
-    //   const metric = _.find(this.kpiData.data, { 'geoid': featureInformation.geoid });
-    //   let elements = '<div><h4 style="text-align: center" class="set-margincls center">' + featureInformation.geoname + '</h4>';
-    //   elements += '<table class="table table-hover">';
-    //   elements += '<thead><tr><th>Date</th><th>Value</th><th>Count</th></tr></thead><tbody>';
-    //   for (var i in metric.allvalues) {
-    //     let av = metric.allvalues[i];
-    //     elements += '<tr><td>' + av.year + '</td>';
-    //     elements += '<td>' + av.value.toFixed(2) + '</td>';
-    //     elements += '<td>' + av.count.toLocaleString() + '</td></tr>';
-
-    //   }
-    //   elements += '</tbody></table></div>';
-    //   popUpContent.innerHTML = elements;
-    //   this.popUpOverlay.setPosition(evt.coordinate);
-    // },
-    //   (error) => { console.error(error); }
-    // );
   }
 
 }

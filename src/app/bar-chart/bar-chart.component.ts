@@ -4,7 +4,9 @@ import * as d3 from 'd3-selection';
 import * as d3Scale from 'd3-scale';
 import * as d3Array from 'd3-array';
 import * as d3Axis from 'd3-axis';
+import * as d3Collection from 'd3-collection';
 import * as _ from 'lodash';
+
 @Component({
   selector: 'app-bar-chart',
   templateUrl: './bar-chart.component.html',
@@ -18,11 +20,12 @@ export class BarChartComponent implements OnInit {
 
   private x0: any;
   private x1: any;
-  private x: any;
   private y: any;
   private z: any;
   private svg: any;
   private g: any;
+  private options;
+  private maxNumberOfKeys;
   @Input() source;
 
   constructor() {
@@ -30,10 +33,18 @@ export class BarChartComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initSvg();
-    this.initAxis();
-    this.drawAxis();
-    this.drawBars();
+    if (this.source) {
+      let arr = [];
+      this.source.forEach((ele) => {
+        arr.push(Object.keys(ele).length);
+      })
+      this.maxNumberOfKeys = arr.indexOf(Math.max(...arr));
+      this.initSvg();
+      this.initAxis();
+      this.drawAxis();
+      this.drawBars();
+    }
+
   }
 
   private initSvg() {
@@ -46,36 +57,48 @@ export class BarChartComponent implements OnInit {
 
   private initAxis() {
     d3.selectAll('svg').attr('width', '100%');
-    this.x = d3Scale.scaleBand().rangeRound([0, this.width]).padding(0.1);
+    this.x0 = d3Scale.scaleBand().range([0, this.width]);
+    this.x1 = d3Scale.scaleBand().padding(0.10);
     this.y = d3Scale.scaleLinear().rangeRound([this.height, 0]);
-    this.x.domain(this.source.numbers.map((d) => d.label));
-    this.y.domain([0, d3Array.max(this.source.numbers, (d) => d.number)]);
+    this.z = d3Scale.scaleOrdinal().range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+    this.options = d3Collection.keys(this.source[this.maxNumberOfKeys]).filter((key) => { return key !== "label"; });
+    this.x0.domain(this.source.map((d) => { return d.label; }));
+    this.x1.domain(this.options).rangeRound([0, this.x0.bandwidth()]);
+    this.y.domain([0, d3Array.max(this.source, (d) => { return d3Array.max(this.options, (key) => { return d[key]; }); })]);
   }
 
   private drawAxis() {
+
     this.g.append("g")
-      .attr("class", "axis axis--x")
+      .attr("class", "x axis")
       .attr("transform", "translate(0," + this.height + ")")
-      .call(d3Axis.axisBottom(this.x));
+      .call(d3Axis.axisBottom(this.x0));
+
     this.g.append("g")
-      .attr("class", "axis axis--y")
+      .attr("class", "y axis")
       .call(d3Axis.axisLeft(this.y))
       .append("text")
-      .attr("class", "axis-title")
       .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
+      .attr("y", this.y(this.y.ticks().pop()) + 0.5)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Satisfaction %");
   }
 
   private drawBars() {
     this.g.selectAll(".bar")
-      .data(this.source.numbers)
+      .data(this.source)
+      .enter().append('g')
+      .attr('class', 'rect')
+      .attr('transform', (d) => { return "translate(" + this.x0(d.label) + ",0)"; })
+      .selectAll('rect')
+      .data((d) => { return this.options.map((key) => { return { key: key, value: d[key] ? d[key] : 0 }; }); })
       .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", (d) => this.x(d.label))
-      .attr("y", (d) => this.y(d.number))
-      .attr("width", this.x.bandwidth())
-      .attr("height", (d) => this.height - this.y(d.number));
+      .attr("width", this.x1.bandwidth())
+      .attr("x", (d) => { return this.x1(d.key); })
+      .attr("y", (d) => { return this.y(d.value); })
+      .attr("height", (d) => { return this.height - this.y(d.value); })
+      .attr("fill", (d) => { return this.z(d.key); });
+
   }
 }
