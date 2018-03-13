@@ -1,0 +1,12 @@
+<div>
+<div>
+  <select class="form-control" name="subgeoselect" id="subgeoselect" [(ngModel)]="subGeo" (change)="onSubgeoChange()">
+      <option *ngFor="let option of SUBGEOARR;" value="{{option.value}}" ngDefaultControl>{{option.name}}</option>
+  </select>
+</div>
+<div id="heatMap" class="map"> </div>
+  <div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+  </div>
+</div>

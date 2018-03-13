@@ -1,0 +1,13 @@
+<div class="custom-popup">
+  <app-tabs>
+    <app-tab [tabTitle]="'Table'">
+      <app-data-table [source]="tableOne"></app-data-table>
+    </app-tab>
+    <app-tab tabTitle="Chart">
+      <app-bar-chart [source]="barData"></app-bar-chart>
+    </app-tab>
+    <app-tab [tabTitle]="'Table2'">
+      <app-data-table [source]="tableTwo"></app-data-table>
+    </app-tab>
+  </app-tabs>
+</div>

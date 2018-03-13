@@ -1,0 +1,5 @@
+<span class="endValue">{{cutDecimals(minimumValue,2)}}</span>
+<div *ngFor="let num of colorbarArray; let i=index;" [ngStyle]="{'background-color': getColorForPercentage(num)}" class="color">
+  <span></span>
+</div>
+<span class="endValue">{{cutDecimals(maximumValue,2)}}</span>

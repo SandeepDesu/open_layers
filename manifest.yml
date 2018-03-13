@@ -1,0 +1,8 @@
+applications:
+- name: npsmap
+  memory: 64MB
+  disk_quota: 128MB
+  instances: 1
+  random-route: false
+  buildpack: staticfile_buildpack
+  path: dist
