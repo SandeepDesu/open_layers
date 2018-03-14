@@ -157,33 +157,64 @@ export class MapGeoServeComponent implements OnInit {
       return { name: feature.get('name') };
     });
     let sampleArr = [];
-    multiBarData.forEach((singleRecord) => {
-      singleRecord.allvalues.forEach((data, k) => {
-        if (sampleArr.length > 0) {
-          const index = _.findIndex(sampleArr, { label: data.year });
-          if (index === -1) {
-            let obj = {};
-            obj['label'] = data.year;
-            obj[0] = data.value
-            sampleArr.push(obj);
-          } else {
-            let obj = sampleArr[index];
-            obj[Object.keys(obj).length - 1] = data.value;
-            sampleArr[index] = obj;
+    let tableInfoOne = { data: [], headers: [{ 'title': 'YEAR', 'fieldName': 'year' }, { 'title': 'COUNT', 'fieldName': 'count' }, { 'title': 'VALUE', 'fieldName': 'value' }] };
+    let tableInfoTwo = {
+      data: [{
+        features: [
+          {
+            id: "world_l1_simplified.fid-4303a338_16221209f71_-296d",
+            properties: {
+              continent: "NA",
+              hub: "North America",
+              hub_abbr: "NA",
+              l0_abbr: "USA",
+              l0_iso_code: "US",
+              l0_iso_num: "840",
+              l0_long_name: "United States of America",
+              l0_name: "United States of America",
+              l1_admincode: "20",
+              l1_iso_code: "KS",
+              l1_name: "Kansas",
+              world_area: "US"
+            },
+            type: "Feature"
           }
-        } else {
+        ],
+        geoid: "US",
+        geoname: "United States of America",
+        params: {
+          geo: "ALL",
+          kpi: "NPS",
+          subgeo: "COUNTRY"
+        }
+      }], headers: [{ 'title': 'ID', 'fieldName': 'features[0].id' }, { 'title': 'GEO', 'fieldName': 'geoid' }, { 'title': 'HUB', 'fieldName': 'features[0].properties.hub' }]
+    };
+    multiBarData[0].allvalues.forEach((data, k) => {
+      tableInfoOne.data.push(data);
+      if (sampleArr.length > 0) {
+        const index = _.findIndex(sampleArr, { label: data.year });
+        if (index === -1) {
           let obj = {};
           obj['label'] = data.year;
           obj[0] = data.value
           sampleArr.push(obj);
+        } else {
+          let obj = sampleArr[index];
+          obj[Object.keys(obj).length - 1] = data.value;
+          sampleArr[index] = obj;
         }
-      })
+      } else {
+        let obj = {};
+        obj['label'] = data.year;
+        obj[0] = data.value
+        sampleArr.push(obj);
+      }
     })
     const compFactory = this.resolver.resolveComponentFactory(PopUpComponent);
     this.compRef = compFactory.create(this.injector);
     this.compRef.instance.barData = sampleArr;
-    this.compRef.instance.tableOne = TableData;
-    this.compRef.instance.tableTwo = TableData;
+    this.compRef.instance.tableOne = tableInfoOne;
+    this.compRef.instance.tableTwo = tableInfoTwo;
     popUpContent.appendChild(this.compRef.location.nativeElement);
     this.popUpOverlay.setPosition(coordinate);
     this.appRef.attachView(this.compRef.hostView);

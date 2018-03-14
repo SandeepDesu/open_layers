@@ -7,7 +7,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let r of data">
-        <td *ngFor="let h of headers">{{r[h.fieldName]}}</td>
+        <td *ngFor="let h of headers">{{getValueByFieldName(r,h.fieldName)}}</td>
       </tr>
     </tbody>
   </table>
