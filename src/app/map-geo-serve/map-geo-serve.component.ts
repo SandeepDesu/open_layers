@@ -4,7 +4,7 @@ import { environment } from 'environments/environment';
 import { MapService } from '../../services/map.service';
 import { PopUpComponent } from '../pop-up/pop-up.component';
 import * as _ from 'lodash';
-import { BarData, TableData, multiBarData } from '../exampledata';
+import { multiBarData, exampleTableTwo } from '../exampledata';
 @Component({
   selector: 'app-map-geo-serve',
   templateUrl: './map-geo-serve.component.html',
@@ -158,37 +158,6 @@ export class MapGeoServeComponent implements OnInit {
     });
     let sampleArr = [];
     let tableInfoOne = { data: [], headers: [{ 'title': 'YEAR', 'fieldName': 'year' }, { 'title': 'COUNT', 'fieldName': 'count' }, { 'title': 'VALUE', 'fieldName': 'value' }] };
-    let tableInfoTwo = {
-      data: [{
-        features: [
-          {
-            id: "world_l1_simplified.fid-4303a338_16221209f71_-296d",
-            properties: {
-              continent: "NA",
-              hub: "North America",
-              hub_abbr: "NA",
-              l0_abbr: "USA",
-              l0_iso_code: "US",
-              l0_iso_num: "840",
-              l0_long_name: "United States of America",
-              l0_name: "United States of America",
-              l1_admincode: "20",
-              l1_iso_code: "KS",
-              l1_name: "Kansas",
-              world_area: "US"
-            },
-            type: "Feature"
-          }
-        ],
-        geoid: "US",
-        geoname: "United States of America",
-        params: {
-          geo: "ALL",
-          kpi: "NPS",
-          subgeo: "COUNTRY"
-        }
-      }], headers: [{ 'title': 'ID', 'fieldName': 'features[0].id' }, { 'title': 'GEO', 'fieldName': 'geoid' }, { 'title': 'HUB', 'fieldName': 'features[0].properties.hub' }]
-    };
     multiBarData[0].allvalues.forEach((data, k) => {
       tableInfoOne.data.push(data);
       if (sampleArr.length > 0) {
@@ -214,7 +183,7 @@ export class MapGeoServeComponent implements OnInit {
     this.compRef = compFactory.create(this.injector);
     this.compRef.instance.barData = sampleArr;
     this.compRef.instance.tableOne = tableInfoOne;
-    this.compRef.instance.tableTwo = tableInfoTwo;
+    this.compRef.instance.tableTwo = exampleTableTwo;
     popUpContent.appendChild(this.compRef.location.nativeElement);
     this.popUpOverlay.setPosition(coordinate);
     this.appRef.attachView(this.compRef.hostView);
